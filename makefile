@@ -10,7 +10,9 @@ update_get:
 	curl -s https://api.telegram.org/bot${bot_id}/getUpdates
 
 git_push:
-	git push origin main
+	git add .
+	git commit -m "small change"
+	git push -u source main
 
 runPy:
 	python3 cerebro.py 10 oi
