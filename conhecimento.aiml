@@ -1,0 +1,752 @@
+<aiml version="1.0.1" encoding="UTF-8">
+    <category>        
+        <pattern>OI</pattern>
+        <template>
+            CUMPRIMENTO
+        </template>
+    </category>
+
+    <category>        
+        <pattern>OI *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+     
+    <category>        
+        <pattern>COÉ</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>COÉ *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>EAE</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>OLÁ</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>OLÁ *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>OLA</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>OLA *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>EAE</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>BOM DIA</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>BOA TARDE</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+    
+    <category>        
+        <pattern>BOA NOITE</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>BOM DIA *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>BOA TARDE *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+    
+    <category>        
+        <pattern>BOA NOITE *</pattern>
+        <template>
+            <srai>OI</srai>
+        </template>
+    </category>
+
+    <category>        
+        <pattern>CUMPRIMENTO INICIAL</pattern>
+        <template>
+            Oi, meu nome é <bot name="name" />, qual o seu?
+        </template>
+    </category>
+
+    <category>        
+        <pattern>CUMPRIMENTO POSTERIOR</pattern>
+        <template>
+            Oi, <get name="name" />, como posso ajudar?
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>MEU NOME É *</pattern>
+        <template>
+            Seu nome é <set name="name"><star /></set>, correto?
+        </template>
+    </category>
+
+    <category>
+        <pattern>É *</pattern>
+        <that>OI MEU NOME É * QUAL O SEU</that>
+        <template>
+            <srai>MEU NOME É <star /></srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>*</pattern>
+        <that>OI MEU NOME É * QUAL O SEU</that>
+        <template>
+            <srai>MEU NOME É <star /></srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM *</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>ISSO</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>CORRETO</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>NÃO</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            Desculpe, qual seu nome entao?
+        </template>
+    </category>
+
+    <category>
+        <pattern>NAO</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            Desculpe, qual seu nome entao?
+        </template>
+    </category>
+
+    <category>
+        <pattern>*</pattern>
+        <that>SEU NOME É * CORRETO</that>
+        <template>
+            Desculpe, qual seu nome entao?
+        </template>
+    </category>
+
+    <category>
+        <pattern>RESPOSTA NOME</pattern>
+        <template>
+            Muito prazer, <get name="name" />, como posso ajudar?
+        </template>
+    </category>
+
+
+
+    
+
+    <category>
+        <pattern>SIM</pattern>
+        <that>SEU NOME É * NÃO É</that>
+        <template>
+            Ótimo, o que deseja, <get name="name" />?
+        </template>
+    </category>
+
+    <category>
+        <pattern>NÃO</pattern>
+        <that>SEU NOME É * NÃO É</that>
+        <template>
+            Desculpe, qual seu nome então?
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>*</pattern>
+        <that>DESCULPE QUAL SEU NOME ENTAO</that>
+        <template>
+            Compreendi, então seu nome é <set name="name"><star /></set>?
+        </template>
+    </category>
+
+    <category>
+        <pattern>É *</pattern>
+        <that>DESCULPE QUAL SEU NOME ENTAO</that>
+        <template>
+            Compreendi, então seu nome é <set name="name"><star /></set>?
+        </template>
+    </category>
+
+    <category>
+        <pattern>MEU NOME É *</pattern>
+        <that>DESCULPE QUAL SEU NOME ENTAO</that>
+        <template>
+            Compreendi, então seu nome é <set name="name"><star /></set>?
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>SIM</pattern>
+        <that>COMPREENDI ENTÃO SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM *</pattern>
+        <that>COMPREENDI ENTÃO SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>CORRETO</pattern>
+        <that>COMPREENDI ENTÃO SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO
+        </template>
+    </category>
+
+    <category>
+        <pattern>NAO</pattern>
+        <that>COMPREENDI ENTÃO SEU NOME É *</that>
+        <template>
+            Desculpe, qual seu nome então?
+        </template>
+    </category>
+
+    <category>
+        <pattern>NÃO</pattern>
+        <that>COMPREENDI ENTÃO SEU NOME É *</that>
+        <template>
+            Desculpe, qual seu nome então?
+        </template>
+    </category>
+
+
+
+
+
+    <category>
+        <pattern>GOSTARIA DE ME INSCREVER PARA UMA BOLSA</pattern>
+        <template>
+            Perfeito! Qual tipo de bolsa voce deseja?
+        </template>
+    </category>
+
+    <category>
+        <pattern>GOSTARIA DE PARTICIPAR DE UM PROJETO COM BOLSA</pattern>
+        <template>
+            <srai>GOSTARIA DE ME INSCREVER PARA UMA BOLSA</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>QUERO ME INSCREVER PARA UMA BOLSA</pattern>
+        <template>
+            <srai>GOSTARIA DE ME INSCREVER PARA UMA BOLSA</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>QUERO PARTICIPAR DE UM PROJETO COM BOLSA</pattern>
+        <template>
+            <srai>GOSTARIA DE ME INSCREVER PARA UMA BOLSA</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>* INSCREVER * INICIACAO CIENTIFICA</pattern>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia...
+        </template>
+    </category>
+
+    <category>
+        <pattern>* INSCREVER * MONITORIA</pattern>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia...
+        </template>
+    </category>
+
+    <category>
+        <pattern>* INSCREVER * PROJETO DE EXTENSAO</pattern>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia...
+        </template>
+    </category>
+
+    <category>
+        <pattern>* INSCREVER * AUXILIO ESTUDANTIL</pattern>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia, comprovante de renda...
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>PROJETO DE EXTENSAO</pattern>
+        <that>PERFEITO QUAL TIPO DE BOLSA VOCE DESEJA</that>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia...
+        </template>
+    </category>
+
+    <category>
+        <pattern>INICIACAO CIENTIFICA</pattern>
+        <that>PERFEITO QUAL TIPO DE BOLSA VOCE DESEJA</that>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia...
+        </template>
+    </category>
+
+    <category>
+        <pattern>MONITORIA</pattern>
+        <that>PERFEITO QUAL TIPO DE BOLSA VOCE DESEJA</that>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia...
+        </template>
+    </category>
+
+    <category>
+        <pattern>AUXILIO ESTUDANTIL</pattern>
+        <that>PERFEITO QUAL TIPO DE BOLSA VOCE DESEJA</that>
+        <template>
+            Você deve enviar os seguintes documentos então: Documento de identidade, comprovante de residencia, comprovante de renda...
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>CHECKLIST</pattern>
+        <template>
+            CHECKLIST
+        </template>
+    </category>
+
+    <category>
+        <pattern>GOSTARIA DE OBTER A CHECKLIST</pattern>
+        <template>
+            <srai>
+                CHECKLIST
+            </srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>QUERO MEU CHECKLIST</pattern>
+        <template>
+            <srai>
+                CHECKLIST
+            </srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>* RECEBER * CHECKLIST</pattern>
+        <template>
+            <srai>
+                CHECKLIST
+            </srai>
+        </template>
+    </category>
+    
+
+
+
+    <category>
+        <pattern>CHECKLIST GERAL</pattern>
+        <template>
+            CHECKLIST GERAL
+        </template>
+    </category>
+
+    <category>
+        <pattern>ENVIE A CHECKLIST GERAL</pattern>
+        <template>
+            CHECKLIST GERAL
+        </template>
+    </category>
+
+    <category>
+        <pattern>ENVIE A CHECKLIST GERAL</pattern>
+        <template>
+            CHECKLIST GERAL
+        </template>
+    </category>
+
+    <category>
+        <pattern>* RECEBER * CHECKLIST GERAL</pattern>
+        <template>
+            CHECKLIST GERAL
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>EMAIL</pattern>
+        <template>
+            Digite seu email
+        </template>
+    </category>
+
+    <category>
+        <pattern>*</pattern>
+        <that>DIGITE SEU EMAIL</that>
+        <template>
+            Seu email é <set name="email"><star /></set>, correto?
+        </template>
+    </category>
+
+    <category>
+        <pattern>É *</pattern>
+        <that>DIGITE SEU EMAIL</that>
+        <template>
+            Seu email é <set name="email"><star /></set>, correto?
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>ENVIAR NOME USUARIO ATUAL</pattern>
+        <template>
+            <get name="name" />
+        </template>
+    </category>
+
+    <category>
+        <pattern>ENVIAR EMAIL USUARIO ATUAL</pattern>
+        <template>
+            <get name="email" />
+        </template>
+    </category>
+
+
+
+    <category>
+        <pattern>NOME NAO COMPATIVEL</pattern>
+        <template>
+            O nome registrado não esta na identidade. Seu nome é mesmo esse?
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM</pattern>
+        <that>O NOME REGISTRADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Reenvie uma identidade com esse nome então.
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM *</pattern>
+        <that>O NOME REGISTRADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Reenvie uma identidade com esse nome então.
+        </template>
+    </category>
+
+    <category>
+        <pattern>ISSO</pattern>
+        <that>O NOME REGISTRADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Reenvie uma identidade com esse nome então.
+        </template>
+    </category>
+
+    <category>
+        <pattern>ISSO *</pattern>
+        <that>O NOME REGISTRADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Reenvie uma identidade com esse nome então.
+        </template>
+    </category>
+
+    <category>
+        <pattern>CORRETO</pattern>
+        <that>O NOME REGISTRADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Reenvie uma identidade com esse nome então.
+        </template>
+    </category>
+
+    <category>
+        <pattern>NÃO</pattern>
+        <that>O NOME REGRISTADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Desculpe, qual seu nome?
+        </template>
+    </category>
+
+    <category>
+        <pattern>NAO</pattern>
+        <that>O NOME REGRISTADO NAO ESTA NA IDENTIDADE SEU NOME E MESMO ESSE</that>
+        <template>
+            Desculpe, qual seu nome?
+        </template>
+    </category>
+
+
+
+    <category>
+        <pattern>*</pattern>
+        <that>DESCULPE QUAL SEU NOME</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>É *</pattern>
+        <that>DESCULPE QUAL SEU NOME</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>MEU NOME É *</pattern>
+        <that>DESCULPE QUAL SEU NOME</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>RESPOSTA NOME ID</pattern>
+        <template>
+            Entendi, então é <get name="name" />! Por favor reenvie a identidade para uma nova verificação.
+        </template>
+    </category>
+
+
+    
+
+
+    <category>
+        <pattern>NOME NAO INFORMADO</pattern>
+        <template>
+            Por favor informe seu nome.
+        </template>
+    </category>
+
+    <category>
+        <pattern>*</pattern>
+        <that>POR FAVOR INFORME SEU NOME</that>
+        <template>
+            O seu nome é <set name="name"><star /></set>?
+        </template>
+    </category>
+
+    <category>
+        <pattern>É *</pattern>
+        <that>POR FAVOR INFORME SEU NOME</that>
+        <template>
+            O seu nome é <set name="name"><star /></set>?
+        </template>
+    </category>
+
+    <category>
+        <pattern>MEU NOME É *</pattern>
+        <that>POR FAVOR INFORME SEU NOME</that>
+        <template>
+            O seu nome é <set name="name"><star /></set>?
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM</pattern>
+        <that>O SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>SIM *</pattern>
+        <that>O SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>ISSO</pattern>
+        <that>O SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>CORRETO</pattern>
+        <that>O SEU NOME É *</that>
+        <template>
+            NOME RECEBIDO ID
+        </template>
+    </category>
+
+    <category>
+        <pattern>NÃO</pattern>
+        <that>O SEU NOME É *</that>
+        <template>
+            Desculpe, qual seu nome?
+        </template>
+    </category>
+
+    <category>
+        <pattern>NAO</pattern>
+        <that>O SEU NOME É *</that>
+        <template>
+            Desculpe, qual seu nome?
+        </template>
+    </category>
+
+
+
+
+    <category>
+        <pattern>QUAL É MEU NOME</pattern>
+        <template>
+            Seu nome é <get name="name" />, não é?
+        </template>
+    </category>
+
+
+
+    <category>
+        <pattern>EXCELENTE</pattern>
+        <template>
+            Obrigado
+        </template>
+    </category>
+
+    <category>
+        <pattern>MUITO BOM</pattern>
+        <template>
+            Obrigado
+        </template>
+    </category>
+
+    <category>
+        <pattern>ÓTIMO</pattern>
+        <template>
+            Obrigado
+        </template>
+    </category>
+
+    <category>
+        <pattern>OTIMO</pattern>
+        <template>
+            Obrigado
+        </template>
+    </category>
+
+    <category>
+        <pattern>BOM TRABALHO</pattern>
+        <template>
+            Obrigado
+        </template>
+    </category>
+
+
+
+
+
+    <category>
+        <pattern>*</pattern>
+        <template>
+            isso é uma resposta genérica
+        </template>
+    </category>
+    
+</aiml>

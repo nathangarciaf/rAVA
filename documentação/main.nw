@@ -1,0 +1,445 @@
+\title{Projeto micro-rAVA}
+\author{Nathan Garcia Freitas}
+
+\maketitle
+
+\section{Extraindo e processando mensagens do \textit{BOT} do \textit{Telegram}}
+Ao enviar mensagens ao \textit{BOT} do \textit{Telegram} conseguimos extrair 
+diversas informações dessa mensagem enviada e processa-la.
+
+\subsection{Configurações básicas do BOT}
+Inicia-se o script instanciando as variaveis utilizadas ao decorrer do código, variáveis 
+essas que serão explicadas posteriormente:
+
+<<define\_variables>>=
+#!/bin/bash
+botTOKEN=""
+offset="0"
+default_msg="Olá estou na versão 1.0, sou o "
+pipeline="$1"
+
+@
+O \textit{botTOKEN} armazena o ID do \textit{bot}, que será utilizado para chamar as funções 
+da API do \textit{Telegram}. A \textit{default\_msg} é apenas uma varíavel que guarda uma 
+mensagem padrão de inicialização de conversa com o \textit{bot}, enquanto \textit{pipeline} 
+armazena a \textit{string} enviada pelo usuário na linha de comando junto a execução do script, 
+\textit{string} essa que devem conter o \textit{botTOKEN}.
+
+@
+Em seguida, temos a função para configurar o básico do \textit{bot}:
+
+<<set\_basic\_config>>=
+function set_basic_config (){
+	if [[ ${pipeline} != "" ]]; then
+		botTOKEN=${pipeline}
+	fi
+
+	bot_info=`curl -s https://api.telegram.org/bot${botTOKEN}/getMe`
+	name_bot="$(echo $bot_info | jq -r ".result.first_name")"
+	default_msg=$default_msg" "$name_bot
+	
+	script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+	if [ ! -f "${script_dir}/next_id.txt" ]; then
+		touch "${script_dir}/next_id.txt"
+		offset="0"
+	else
+		offset=`cat ${script_dir}/next_id.txt`
+		if [ offset==" " ]; then
+			offset="0"
+		fi
+	fi
+}
+
+@
+Olhando a primeira função presente no código, temos que inicialmente verificamos se o script foi executado passando 
+na linha de comando o \textit{botTOKEN}, e caso seja, o \textit{botTOKEN} receberá a variável \textit{pipeline}.
+Logo em sequência, extraimos o nome do \textit{bot} para usarmos na mensagem padrão enviada pelo \textit{bot} no 
+início das conversas com o usuário. Por fim, temos os seguintes trechos:
+
+<<script\_dir\_get>>=
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+<<next\_id\_generate>>=
+if [ ! -f "${script_dir}/next_id.txt" ]; then
+		touch "${script_dir}/next_id.txt"
+		offset="0"
+	else
+		offset=`cat ${script_dir}/next_id.txt`
+		if [ offset==" " ]; then
+			offset="0"
+		fi
+fi
+
+@
+Sendo o primeiro trecho (\textbf{script\_dir\_get}) responsável por obter o diretório onde está sendo executado o script, 
+com isso, os arquivos para análise de entrada/saída e documentos enviados pelo usuário serão arquivados corretamente. 
+Já no segundo trecho (\textbf{next\_id\_generate}), temos a criação do arquivo \textit{text} para armazenar o \textit{update\_id} 
+da próxima mensagem que deve ser processada pelo \textit{bot}, pois assim evitamos uma possibilidade do \textit{bot} 
+processar a mesma mensagem infinitamente, além de verificar se o arquivo \textit{"next\_id.txt"} já existe, 
+caso exista, ele lê o conteúdo e armazena na variavel responsável pela \textit{ID} da mensagem, 
+a variável \textit{offset}, que será utilizada logo em sequência para indicar qual mensagem deve ser lida. 
+Vale ressaltar que quando \textit{offset} possui o valor '0', será lida a primeira mensagem enviada, caso exista.
+
+@
+A segunda função do script continua sendo de configurações para o funcionamento do \textit{bot}, e nesse caso, 
+a função cria os diretórios que armazenarão diversos tipos de documentos enviados pelo usuário, 
+diretórios esses que serão todos inseridos em uma pasta contendo o \textit{user\_id} (identificação única do usuário).
+
+<<config\_usr\_dir>>=
+function config_usr_dir(){
+	user_dir="${script_dir}/$user_id"
+    mkdir -p ${user_dir}
+
+    user_json_dir="${user_dir}/jsons"
+    mkdir -p $user_json_dir
+
+    user_imgs_dir="${user_dir}/imgs"
+    mkdir -p $user_imgs_dir
+
+    user_docs_dir="${user_dir}/docs"
+    mkdir -p $user_docs_dir
+
+    user_vid_dir="${user_dir}/vid"
+    mkdir -p $user_vid_dir
+}
+
+@
+Tratando agora da função responsável por gerar a manutenção do \textit{offset}, ou seja, fazendo com que 
+o \textit{next\_id} aumente uma unidade (representando o \textit{id} da próxima mensagem). 
+
+<<next\_id\_update>>=
+function next_id_update(){
+	offset="$((update_id + 1))"
+	echo $offset > ${script_dir}/next_id.txt
+}
+
+@
+\subsection{Processamento das mensagens recebidas pelo bot}
+Partindo para função mais importante do script, responsável por iniciar o processo de "compreender" 
+a mensagem dita pelo usuário. Um adendo a se ressaltar, há outras funções presentes dentro do 
+trecho de código a seguir, que serão futuramente explicadas.
+
+<<listen\_usr>>=
+function listen_usr(){
+	while true 
+	do
+	#pega as mensagens que foram enviadas
+	updates="$(curl -s "https://api.telegram.org/bot${botTOKEN}/getupdates?offset=${offset}")"
+
+    result="$(echo $updates | jq -r ".result")"
+    error="$(echo $updates | jq -r ".description")"
+
+	if [[ "${result}" == "[]" ]]; then
+		echo "Sem mensagem" | cat >> ${script_dir}/depura.txt
+        exit 0
+    elif [[ "${error}" != "null" ]]; then
+		echo "${error}" | cat >> ${script_dir}/depura.txt
+        echo "${error}" && exit 0
+    fi
+
+	timestamp="$(echo $result | jq -r ".[0].message.date")"
+
+	define_msg_type
+	next_id_update
+	send_message
+	export_csv
+
+	done
+}
+
+@
+Inicialmente temos a instância de um loop, que se sucede do comando da API 
+para a extração dos dados da mensagem enviada pelo usuário utilizamos o comando \textit{curl}.
+
+<<get\_updates>>=
+updates="$(curl -s "https://api.telegram.org/bot${botTOKEN}/getupdates?offset=${offset}")"
+
+@
+Com o comando anterior, a variável \textit{updates} irá armazenar o JSON com as informações
+da mensagem do usuário. Portanto, devemos salvar o \textit{result} para saber se há conteúdo na mensagem,
+ou caso haja algum erro na execução do comando, armazenarmos também, assim:
+
+<<save\_result\_and\_error>>=
+result="$(echo $updates | jq -r ".result")"
+error="$(echo $updates | jq -r ".description")"
+
+@
+Agora há a necessidade de verificar se alguma mensagem foi enviada, e essa confirmação
+é obtida através do seguinte trecho:
+
+<<verify\_message>>=
+if [[ "${result}" == "[]" ]]; then
+    exit 0
+elif [[ "${error}" != "null" ]]; then
+    echo "${error}" && exit 0
+fi
+
+@
+Trecho esse responsável por confirmar se há alguma mensagem, ou seja, se \textit{result} não é vazio,
+ou caso haja algum erro, por exemplo, um botTOKEN inexistente.
+
+Adiante, temos a criação de uma varíavel \textit{timestamp}, guardando a data e horário da mensagem 
+codificado em base64, destacando um ponto importante que será visto em diversos outros trechos do código, 
+que é a presença do valor '0' nos colchetes do resgate da mensagem, que é utilizado para resgatar apenas 
+a primeira mensagem enviada para o \textit{bot}. Em seguida temos cinco funções, das quais falaremos a seguir, 
+com exceção da \textbf{next\_id\_update} e da \textbf{config\_usr\_dir}, já supracitadas.
+
+A primeira é \textbf{define\_msg\_type}:
+
+<<define\_msg\_type>>=
+function define_msg_type(){
+	update_id="$(echo "$result" | jq -r ".[0].update_id")"
+	user_id="$(echo ${result} | jq -r ".[0].message.chat.id")"
+
+	config_usr_dir
+
+    echo $updates > updates_.json
+    jq . updates_.json > ${user_json_dir}/$update_id.json
+    rm updates_.json
+
+	document_confirm="$(echo $result | jq -r ".[0].message.document")"
+	photo_confirm="$(echo $result | jq -r ".[0].message.photo")"
+	video_confirm="$(echo $result | jq -r ".[0].message.video")"
+	voice_confirm="$(echo $result | jq -r ".[0].message.voice")"
+	
+	if [[ ${document_confirm}  != "null" ]]; then
+		interaction_type="document"
+		process_document
+	elif [[ ${photo_confirm} != "null" ]]; then
+		interaction_type="photo"
+		process_photo
+	elif [[ ${video_confirm} != "null" ]]; then
+		interaction_type="video"
+		process_video
+	elif [[ ${voice_confirm} != "null" ]]; then
+		interaction_type="voice"
+		process_voice
+	else
+		interaction_type="text"
+		process_text
+	fi
+}
+
+@
+Primeiramente devemos resgatar informações importantes da conversa e do usuário para o funcionamento do bot, e vemos 
+a extração desses dados no seguinte trecho: 
+
+<<get\_chat\_infos>>=
+update_id="$(echo "$result" | jq -r ".[0].update_id")"
+user_id="$(echo ${result} | jq -r ".[0].message.chat.id")"
+
+@
+Como apresentado, necessitamos das seguintes variáveis: 
+\textit{update\_id}, que corresponde a identificação da mensagem enviada e
+o \textit{user\_id}, que representa a identificação do usuário que enviou mensagem ao bot.
+
+Depois de pegar esses dados, invocamos a função (\textbf{config\_usr\_dir}). A seguir temos 
+a criação e o envio do arquivo tipo JSON para a pasta do usuário, para que quem utilizar o script 
+possa analisar os dados extraídos das mensagens do usuário, a formatando com o comando \textit{jq}.
+
+Com todos esses dados em mãos, tratamos do tipo de mensagem que o usuário enviou efetivamente, 
+guardando a confirmação de cada tipo possível de dados que um usuário pode enviar no \textit{Telegram}.
+
+<<confirm\_msg\_type>>=
+document_confirm="$(echo $result | jq -r ".[0].message.document")"
+photo_confirm="$(echo $result | jq -r ".[0].message.photo")"
+video_confirm="$(echo $result | jq -r ".[0].message.video")"
+voice_confirm="$(echo $result | jq -r ".[0].message.voice")"
+
+@
+Agora, resta apenas direcionar o tipo de processamento que a mensagem receberá baseado em seu tipo:
+
+<<define\_process\_type>>=
+if [[ ${document_confirm}  != "null" ]]; then
+	interaction_type="document"
+	process_document
+elif [[ ${photo_confirm} != "null" ]]; then
+	interaction_type="photo"
+	process_photo
+elif [[ ${video_confirm} != "null" ]]; then
+	interaction_type="video"
+	process_video
+elif [[ ${voice_confirm} != "null" ]]; then
+	interaction_type="voice"
+	process_voice
+else
+	interaction_type="text"
+	process_text
+fi
+
+@
+Trataremos agora de cada tipo de processamento, mas ressaltando que a função de 
+\textbf{process\_video} e \textbf{process\_voice} são iguais, dado que, o script até o momento 
+não processa esse tipo de documento. Ademais, seguimos com o \textbf{process\_document}:
+
+<<process\_document>>=
+function process_document(){
+	file_id="$(echo ${result} | jq -r ".[0].message.document.file_id")"
+    file_json=`curl -s https://api.telegram.org/bot${botTOKEN}/getFile?file_id=${file_id}`
+    file_path="$(echo ${file_json} | jq -r ".result.file_path")"
+
+    application="$(echo ${file_path} | cut -d "." -f2)"
+
+    curl -s -o "${user_docs_dir}/${update_id}.${application}" "https://api.telegram.org/file/bot${botTOKEN}/${file_path}"
+
+	msg="Recebemos o seu documento!"
+}
+
+@
+Um trecho importantíssimo tanto para os documentos quanto para as imagens são muito semelhantes, que é o processo de pegar 
+as informações desse tipo de documento, com uma diferença na extração do \textit{file\_id}.
+
+<<get\_file\_id\_doc>>=
+file_id="$(echo ${result} | jq -r ".[0].message.document.file_id")"
+
+@
+Tendo em mãos o \textit{file\_id}, podemos seguir o mesmo padrão para ambos os tipos de documentos
+(os diferenciais do tipo foto serão abordados posteriormente):
+
+<<download\_doc>>=
+file_json=`curl -s https://api.telegram.org/bot${botTOKEN}/getFile?file_id=${file_id}`
+file_path="$(echo ${file_json} | jq -r ".result.file_path")"
+
+application="$(echo ${file_path} | cut -d "." -f2)"
+
+curl -s -o "${user_docs_dir}/${update_id}.${application}" "https://api.telegram.org/file/bot${botTOKEN}/${file_path}"
+
+@
+Pegando o \textit{file\_path}, que armazena dados a respeito do documento que são de suma importância para a extração, 
+pegamos o sufixo do documento - há de exemplo .pdf,.txt etc. - baixamos o documento enviado pela API do \textit{Telegram} 
+e redirecionamos para a pasta do usuário onde armazenamos os documentos. Finalizando com a alteração da mensagem 
+que o \textit{bot} enviará para o usuário como resposta para "Recebemos o seu documento".
+
+Como dito, o processamento de imagem é bem semelhante ao de documentos até certo ponto:
+
+<<process\_photo>>=
+function process_photo(){
+	file_id="$(echo ${result} | jq -r ".[0].message.photo[-1].file_id")"
+	file_json=`curl -s https://api.telegram.org/bot${botTOKEN}/getFile?file_id=${file_id}`
+	file_path="$(echo ${file_json} | jq -r ".result.file_path")"
+	
+	application="$(echo ${file_path} | cut -d "." -f2)"
+
+	curl -s -o "${user_imgs_dir}/${update_id}.${application}" "https://api.telegram.org/file/bot${botTOKEN}/${file_path}"
+	tesseract $user_imgs_dir/${update_id}.${application} ${user_imgs_dir}/${update_id}
+
+	msg=`cat "$user_imgs_dir/${update_id}.txt"`
+
+	if [ ${msg} == " \n\ff" ]; then
+		msg="Não conseguimos detectar texto nesta imagem"
+	fi
+}
+
+@
+Ressaltando a diferença de como extrair o \textit{file\_id} para imagens, temos a extração através da aba 
+"photo" ao invés da aba "document", e vale dizer que ao pegarmos na aba "photo", utilizamos o \textit{file\_id} 
+da imagem de resolução "-1" no vetor de resoluções.
+
+<<get\_file\_id\_photo>>=
+file_id="$(echo ${result} | jq -r ".[0].message.photo[-1].file_id")"
+
+@
+Após o resgate do \textit{file\_id}, seguimos basicamente o mesmo processo de download do arquivo:
+
+<<download\_photo>>=
+file_json=`curl -s https://api.telegram.org/bot${botTOKEN}/getFile?file_id=${file_id}`
+file_path="$(echo ${file_json} | jq -r ".result.file_path")"
+
+application="$(echo ${file_path} | cut -d "." -f2)"
+
+curl -s -o "${user_imgs_dir}/${update_id}.${application}" "https://api.telegram.org/file/bot${botTOKEN}/${file_path}"
+
+@
+Porém com a diferença do redirecionamento do arquivo baixado, sendo enviado para a pasta de imagens. 
+Agora com as peculiaridades do processamento de imagem, temos a transformação do texto presente na imagem 
+enviada pelo usuário em texto e armazenando no mesmo local onde a imagem está, e inserindo esse texto na variável 
+da mensagem que será enviada como resposta, e caso o tesseract, software responsável por essa conversão de imagem 
+para texto retorne vazio, a mensagem deverá informar.
+
+Como dito, o processamento de video e voz é igual, ambos ainda não estão sendo feitos, assim temos:
+
+<<process\_video>>=
+function process_video(){
+	msg="por enquanto não estou processsando este tipo de mídia"
+}
+
+<<process\_voice>>=
+function process_voice(){
+	msg="por enquanto não estou processsando este tipo de mídia"
+}
+
+@
+Finalizando com o \textbf{process\_text}, temos:
+
+<<process\_text>>=
+function process_text(){
+	text_received="$(echo $result | jq -r .[0].message.text)"
+
+	if [[ "${text_received}" == "/start" ]]; then
+        echo "Iniciou a conversa" | cat >> ${script_dir}/depura.txt
+		msg="${default_msg}"
+	elif [[ "${text_received}" == "DAE" ]]; then
+        echo "INTERAÇÃO COM O DAE" | cat >> ${script_dir}/depura.txt
+	else
+		msg="$text_received para voce tambem"
+    fi
+}
+
+@
+Recebe-se o texto enviado pelo usuário, e caso seja o comando \textit{/start}, responsável por iniciar 
+a interação bot-usuário, a mensagem que será enviada será no molde padrão, definida anteriormente, porém 
+caso não seja, o \textit{bot} reenvia a mensagem do usuário com o acréscimo da \textit{string} "para voce tambem".
+
+\subsection{Enviando mensagem ao usuário}
+Obtida a resposta condizente com o tipo de mensagem, agora resta responder o usuário, como dita na função \textbf{listen\_usr}. 
+Temos então a função responsável por enviar para o chat em questão a mensagem após o processamento: 
+
+<<send\_message>>=
+function send_message(){
+	msg_status=`curl -s -X POST -H 'Content-Type: application/json' \
+		-d '{"chat_id": "'"${user_id}"'", "text": "'"${msg}"'"}' \
+		https://api.telegram.org/bot${botTOKEN}/sendMessage`
+}
+
+@
+Um adendo a ser comentado é que o \textit{user\_id} possui o mesmo valor que o \textit{chat\_id}. 
+
+Finalizando com a última função apresentada em \textbf{listen\_usr}, a que irá gerar um \textit{log} com os 
+dados principais da interação bot-usuário, gerando inicialmente um cabeçalho auxiliando na organização.
+
+<<export\_csv>>=
+function export_csv(){
+	if [[ ! -e "${script_dir}/log.csv" ]]; then
+		# Cabeçalho do CSV
+    	echo "Timestamp,BotTOKEN,ChatID,Mensagem_Do_Usuario,Situacao,JSON" \ 
+			>> ${script_dir}/log.csv
+	fi
+
+	echo $timestamp","$name_bot","$user_id","$text_received",OK"","${user_json_dir}/${update_id}.json \
+    	>>  ${script_dir}/log.csv
+}
+
+@
+Após todas as definições das funções citadas anteriormente, resta apenas invocar as duas principais para o funcionamento:
+
+<<main>>=
+set_basic_config
+listen_usr
+
+@
+Marcando assim, o fim do script, que toma sua forma completa seguindo o seguinte esquema:
+<<*>>=
+<<define\_variables>>
+<<set\_basic\_config>>
+<<config\_usr\_dir>>
+<<next\_id\_update>>
+<<listen\_usr>>
+<<define\_msg\_type>>
+<<process\_document>>
+<<process\_photo>>
+<<process\_video>>
+<<process\_voice>>
+<<process\_text>>
+<<send\_message>>
+<<export\_csv>>
+<<main>>
