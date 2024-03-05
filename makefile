@@ -1,6 +1,7 @@
 all: runScript
 
-bot_id=6194010871:AAHkAo9WW2rhwWhJO9EZfTEkc-Mbl_se1g4
+#Inserir o botTOKEN
+bot_id=""
 
 me_info:
 	curl -s https://api.telegram.org/bot${bot_id}/getMe	
@@ -8,14 +9,8 @@ me_info:
 update_get:
 	curl -s https://api.telegram.org/bot${bot_id}/getUpdates
 
-git:
-	echo "# telegramBOT" >> README.md
-	git init
-	git add .
-	git commit -m "commit"
-	git branch -M main
-	git remote add one https://github.com/nathangarciaf/telegramBOT.git
-	git push -u one main
+git_push:
+	git push origin main
 
 runPy:
 	python3 cerebro.py 10 oi

@@ -336,6 +336,7 @@ function generate_geral_checklist(){
                 generate_checklist ${user_id_atual}
                 relatorio="$relatorio $msg"
         fi
+        
         echo -e $relatorio > "${script_dir}/checklist.txt"
         cupsfilter ${script_dir}/checklist.txt > ${script_dir}/checklist.pdf
         done < "$arquivo"
