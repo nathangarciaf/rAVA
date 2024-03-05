@@ -11,6 +11,7 @@ name=""
 status_id=""
 status_resid=""
 user_email=""
+username=""
 
 function set_basic_config (){
         if [[ ${pipeline} != "" ]]; then
